@@ -1,28 +1,55 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Linkclump",
-  "version": "2.9.5",
+  "version": "3.0.0",
   "description": "Lets you open, copy or bookmark multiple links at the same time.",
+
+  // Background service worker replaces persistent background scripts from V2
   "background": {
-    "scripts": ["settings_manager.js", "background.js"],
-    "persistent": false
+    "service_worker": "background.js"
   },
-  "options_page": "pages/options.html",
-  "icons": {"16": "images/16x16.png",
-           "48": "images/48x48.png",
-          "128": "images/128x128.png" },
+
+  // Options page is declared under "options_ui" in MV3
+  "options_ui": {
+    "page": "pages/options.html",
+    "open_in_tab": true
+  },
+
+  "icons": {
+    "16": "images/16x16.png",
+    "48": "images/48x48.png",
+    "128": "images/128x128.png"
+  },
+
+  // Content scripts remain similar; note that "all_frames" and "run_at" are still allowed in MV3
   "content_scripts": [
     {
-    "matches": ["<all_urls>"],
-    "js": ["linkclump.js"],
-    "run_at": "document_end",
-    "all_frames": true
+      "matches": ["<all_urls>"],
+      "js": ["linkclump.js"],
+      "run_at": "document_end",
+      "all_frames": true
     }
   ],
+
+  // The old "permissions" array is split into "permissions" and "host_permissions" in MV3
+  // - "permissions" are for Chrome APIs (like "bookmarks")
+  // - "host_permissions" define which sites content scripts can access
   "permissions": [
-    "bookmarks", "http://*/*", "https://*/*"
+  "tabs",
+  "bookmarks",
+  "storage",
+  "scripting",
+  "clipboardWrite"
   ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  // In Manifest V3, web-accessible resources must be declared with the specific "matches" they apply to.
   "web_accessible_resources": [
-    "pages/test_area.html"
+    {
+      "resources": ["pages/test_area.html"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }
